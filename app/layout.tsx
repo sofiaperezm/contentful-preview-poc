@@ -1,6 +1,9 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { EXAMPLE_PATH, CMS_NAME } from "@/lib/constants";
+import { draftMode } from 'next/headers';
+import React from 'react';
+import { ContentfulPreviewProvider } from "../app/components/ContentfulPreviewProvider";
 
 export const metadata = {
   title: `Next.js and ${CMS_NAME} Example`,
@@ -24,9 +27,9 @@ function Footer() {
           <div className="flex flex-col lg:flex-row justify-center items-center lg:pl-4 lg:w-1/2">
             <a
               href="https://nextjs.org/docs"
-              className="mx-3 bg-black hover:bg-white hover:text-black border border-black text-white font-bold py-3 px-12 lg:px-8 duration-200 transition-colors mb-6 lg:mb-0"
+              className="mx-3 font-bold py-3 px-12 lg:px-8 duration-200 transition-colors mb-6 lg:mb-0"
             >
-              Read Documentation
+              <button>Read Documentation</button>
             </a>
             <a
               href={`https://github.com/vercel/next.js/tree/canary/examples/${EXAMPLE_PATH}`}
@@ -46,11 +49,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { isEnabled } = draftMode();
   return (
     <html lang="en" className={inter.variable}>
       <body>
         <section className="min-h-screen">
-          <main>{children}</main>
+          <ContentfulPreviewProvider
+            locale="en-US"
+            enableInspectorMode={isEnabled}
+            enableLiveUpdates={isEnabled}
+            debugMode={true}
+          >
+            <main>{children}</main>
+          </ContentfulPreviewProvider>         
           <Footer />
         </section>
       </body>
