@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useContentfulLiveUpdates } from "@contentful/live-preview/react";
+import { useContentfulLiveUpdates, useContentfulInspectorMode } from "@contentful/live-preview/react";
 
 import MoreStories from "../../more-stories";
 import Avatar from "../../avatar";
@@ -11,7 +11,7 @@ import { Markdown } from "@/lib/markdown";
 
 export default function PostClient({ post, morePosts }: { post: any; morePosts: any }) {
   const livePost = useContentfulLiveUpdates(post);
-  console.log("livePost", livePost);
+  const inspectorProps = useContentfulInspectorMode({ entryId: post.sys.id });
 
   return (
     <div className="container mx-auto px-5">
@@ -22,7 +22,10 @@ export default function PostClient({ post, morePosts }: { post: any; morePosts: 
         .
       </h2>
       <article>
-        <h1 className="mb-12 text-center text-6xl font-bold leading-tight tracking-tighter md:text-left md:text-7xl md:leading-none lg:text-8xl">
+        <h1
+          {...inspectorProps({ fieldId: 'title' })}
+          className="mb-12 text-center text-6xl font-bold leading-tight tracking-tighter md:text-left md:text-7xl md:leading-none lg:text-8xl"
+        >
           {livePost.title}
         </h1>
         <div className="hidden md:mb-12 md:block">
@@ -40,7 +43,7 @@ export default function PostClient({ post, morePosts }: { post: any; morePosts: 
             )}
           </div>
           <div className="mb-6 text-lg">
-            <Date dateString={livePost.date} />
+            <Date dateString={livePost.date} {...inspectorProps({ fieldId: 'date' })} />
           </div>
         </div>
         <div className="mx-auto max-w-2xl">
