@@ -32,6 +32,24 @@ const POST_GRAPHQL_FIELDS = `
   }
 `;
 
+const PRODUCT_GRAPHQL_FIELDS = `
+  sys {
+    id
+  }
+  __typename
+  internalName
+  title
+  slug
+  category
+  description {
+    json
+  }
+  price
+  image {
+    url
+  }
+`;
+
 async function fetchGraphQL(query: string, preview = false): Promise<any> {
   return fetch(
     `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
@@ -121,4 +139,36 @@ export async function getPostAndMorePosts(
     post: extractPost(entry),
     morePosts: extractPostEntries(entries),
   };
+}
+
+export async function getAllProducts(isDraftMode: boolean): Promise<any[]> {
+  const entries = await fetchGraphQL(
+    `query {
+      productCollection(where: { slug_exists: true }, order: internalName_ASC, preview: ${
+        isDraftMode ? "true" : "false"
+      }) {
+        items {
+          ${PRODUCT_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+  );
+  return entries?.data?.productCollection?.items;
+}
+
+export async function getProductBySlug(slug: string, isDraftMode: boolean): Promise<any> {
+  const entry = await fetchGraphQL(
+    `query {
+      productCollection(where: { slug: "${slug}" }, preview: ${
+      isDraftMode ? "true" : "false"
+    }, limit: 1) {
+        items {
+          ${PRODUCT_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode
+  );
+  return entry?.data?.productCollection?.items?.[0];
 }

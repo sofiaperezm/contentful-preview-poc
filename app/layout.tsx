@@ -4,6 +4,8 @@ import { EXAMPLE_PATH, CMS_NAME } from "@/lib/constants";
 import { draftMode } from 'next/headers';
 import React from 'react';
 import { ContentfulPreviewProvider } from "../app/components/ContentfulPreviewProvider";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 export const metadata = {
   title: `Next.js and ${CMS_NAME} Example`,
@@ -16,34 +18,6 @@ const inter = Inter({
   display: "swap",
 });
 
-function Footer() {
-  return (
-    <footer className="bg-accent-1 border-t border-accent-2">
-      <div className="container mx-auto px-5">
-        <div className="py-28 flex flex-col lg:flex-row items-center">
-          <h3 className="text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-center lg:text-left mb-10 lg:mb-0 lg:pr-4 lg:w-1/2">
-            Built with Next.js.
-          </h3>
-          <div className="flex flex-col lg:flex-row justify-center items-center lg:pl-4 lg:w-1/2">
-            <a
-              href="https://nextjs.org/docs"
-              className="mx-3 font-bold py-3 px-12 lg:px-8 duration-200 transition-colors mb-6 lg:mb-0"
-            >
-              <button>Read Documentation</button>
-            </a>
-            <a
-              href={`https://github.com/vercel/next.js/tree/canary/examples/${EXAMPLE_PATH}`}
-              className="mx-3 font-bold hover:underline"
-            >
-              View on GitHub
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -53,7 +27,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <section className="min-h-screen">
+        <section className="min-h-screen flex flex-col justify-between">
+          <Header />
           <ContentfulPreviewProvider
             locale="en-US"
             enableInspectorMode={isEnabled}
@@ -62,7 +37,7 @@ export default function RootLayout({
           >
             <main>{children}</main>
           </ContentfulPreviewProvider>         
-          <Footer />
+          <Footer path={EXAMPLE_PATH} />
         </section>
       </body>
     </html>

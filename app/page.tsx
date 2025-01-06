@@ -80,8 +80,6 @@ export default async function Page() {
   const { isEnabled } = draftMode();
   const allPosts = await getAllPosts(isEnabled);
 
-  console.log("allPosts", allPosts)
-
   const heroPost = allPosts[0];
   const morePosts = allPosts.slice(1);
 

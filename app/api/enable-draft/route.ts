@@ -1,4 +1,4 @@
-import { getPreviewPostBySlug } from "@/lib/api";
+import { getPreviewPostBySlug, getProductBySlug } from "@/lib/api";
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -6,11 +6,9 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
   const slug = searchParams.get("slug");
+  const type = searchParams.get("type")
 
-  console.log(secret)
-  console.log(slug)
-
-  if (!secret || !slug) {
+  if (!secret || !slug || !type) {
     return new Response("Missing parameters", { status: 400 });
   }
 
@@ -18,10 +16,22 @@ export async function GET(request) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  const post = await getPreviewPostBySlug(slug);
-
-  if (!post) {
-    return new Response("Post not found", { status: 404 });
+  let content;
+  switch (type) {
+    case "post":
+      content = await getPreviewPostBySlug(slug);
+      if (!content) {
+        return new Response("Post not found", { status: 404 });
+      }
+      break;
+    case "product":
+      content = await getProductBySlug(slug, true);
+      if (!content) {
+        return new Response("Product not found", { status: 404 });
+      }
+      break;
+    default:
+      return new Response("Invalid content type", { status: 400 });
   }
 
   draftMode().enable();
@@ -37,5 +47,5 @@ export async function GET(request) {
     sameSite: 'none',
   });
 
-  redirect(`/posts/${slug}`);
+  redirect(`/${type}s/${slug}`);
 }

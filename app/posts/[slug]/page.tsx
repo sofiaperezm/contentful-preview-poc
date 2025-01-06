@@ -9,6 +9,7 @@ export default async function PostPage({
   params: { slug: string };
 }) {
   const { isEnabled } = draftMode();
+  console.log("param posts", params.slug);
   const { post, morePosts } = await getPostAndMorePosts(params.slug, isEnabled);   
 
   return (
