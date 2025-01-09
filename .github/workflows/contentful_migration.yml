@@ -1,0 +1,39 @@
+name: Contentful Migration
+run-name: ${{ github.actor }} is running Contentful Migration 🚀
+
+on: 
+  push:
+    branches:
+      - main
+      
+jobs:
+  run-migrations:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+      
+    - name: Log Node.js setup
+      run: echo "Node.js set up successfully with version 16"
+
+    - name: Install Contentful CLI
+      run: |
+          echo "Installing Contentful CLI"
+          npm install -g contentful-cli
+          echo "Contentful CLI installed successfully"
+
+    - name: Run migration script
+      env:
+        MANAGEMENT_TOKEN: ${{ secrets.CONTENTFUL_MANAGEMENT_TOKEN }}
+        TARGET_ENVIRONMENT_ID: ${{ secrets.CONTENTFUL_TARGET_ENVIRONMENT_ID }}
+        SOURCE_ENVIRONMENT_ID: ${{ secrets.CONTENTFUL_SOURCE_ENVIRONMENT_ID }}
+        SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+      run: |
+        echo "Running migration script"
+        node ./scripts/run_migration.js
