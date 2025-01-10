@@ -4,6 +4,7 @@ const POST_GRAPHQL_FIELDS = `
   }
   __typename
   slug
+  entryName
   title
   coverImage {
     url
@@ -50,9 +51,27 @@ const PRODUCT_GRAPHQL_FIELDS = `
   }
 `;
 
+const RESTAURANT_GRAPHQL_FIELDS = `
+  sys {
+    id
+  }
+  __typename
+  entryName
+  name
+  slug
+  address {
+    lat
+    lon
+  }
+  phoneNumber
+  image {
+    url
+  }
+`;
+
 async function fetchGraphQL(query: string, preview = false): Promise<any> {
   return fetch(
-    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/${process.env.CONTENTFUL_SOURCE_ENVIRONMENT_ID}`,
     {
       method: "POST",
       headers: {
@@ -104,6 +123,7 @@ export async function getAllPosts(isDraftMode: boolean): Promise<any[]> {
     }`,
     isDraftMode,
   );
+  console.log("entries", entries);
   return extractPostEntries(entries);
 }
 
@@ -171,4 +191,37 @@ export async function getProductBySlug(slug: string, isDraftMode: boolean): Prom
     isDraftMode
   );
   return entry?.data?.productCollection?.items?.[0];
+}
+
+export async function getAllRestaurants(isDraftMode: boolean): Promise<any[]> {
+  const entries = await fetchGraphQL(
+    `query {
+      restaurantCollection(where: { slug_exists: true }, order: entryName_ASC, preview: ${
+        isDraftMode ? "true" : "false"
+      }) {
+        items {
+          ${RESTAURANT_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode,
+  );
+  console.log("entries", entries);
+  return entries?.data?.restaurantCollection?.items;
+}
+
+export async function getRestaurantBySlug(slug: string, isDraftMode: boolean): Promise<any> {
+  const entry = await fetchGraphQL(
+    `query {
+      restaurantCollection(where: { slug: "${slug}" }, preview: ${
+      isDraftMode ? "true" : "false"
+    }, limit: 1) {
+        items {
+          ${RESTAURANT_GRAPHQL_FIELDS}
+        }
+      }
+    }`,
+    isDraftMode
+  );
+  return entry?.data?.restaurantCollection?.items?.[0];
 }

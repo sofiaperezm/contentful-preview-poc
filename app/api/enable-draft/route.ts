@@ -1,4 +1,4 @@
-import { getPreviewPostBySlug, getProductBySlug } from "@/lib/api";
+import { getPreviewPostBySlug, getRestaurantBySlug } from "@/lib/api";
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -24,10 +24,10 @@ export async function GET(request: any) {
         return new Response("Post not found", { status: 404 });
       }
       break;
-    case "product":
-      content = await getProductBySlug(slug, true);
+    case "restaurant":
+      content = await getRestaurantBySlug(slug, true);
       if (!content) {
-        return new Response("Product not found", { status: 404 });
+        return new Response("Restaurant not found", { status: 404 });
       }
       break;
     default:

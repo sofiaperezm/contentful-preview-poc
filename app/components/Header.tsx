@@ -7,7 +7,7 @@ export function Header() {
         <h1 className="text-2xl font-bold">Preview</h1>
         <nav>
           <Link href="/" className="mx-3 text-lg hover:underline">Home</Link>
-          <Link href="/products" className="mx-3 text-lg hover:underline">Products</Link>
+          <Link href="/restaurants" className="mx-3 text-lg hover:underline">Restaurants</Link>
         </nav>
       </div>
     </header>
