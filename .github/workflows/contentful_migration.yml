@@ -37,3 +37,11 @@ jobs:
       run: |
         echo "Running migration script"
         node ./scripts/run_migration.js
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add migrations/
+        git commit -m "Add export file from migration"
+        git push origin main
