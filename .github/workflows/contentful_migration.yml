@@ -3,8 +3,11 @@ run-name: ${{ github.actor }} is running Contentful Migration 🚀
 
 on: 
   push:
-    branches:
-      - main
+    branches: ['main']
+
+    # This will be run the workflow only if the pushed files are in the path filter,
+    # in GitLab review the rules:changes syntax
+    # paths: ['migrations/**']
       
 jobs:
   run-migrations:
@@ -38,10 +41,15 @@ jobs:
         echo "Running migration script"
         node ./scripts/run_migration.js
 
-    - name: Commit and push changes
+    - name: Configure Git
       run: |
-        git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
+
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
         git add migrations/
         git commit -m "Add export file from migration"
-        git push origin main
+        git push
