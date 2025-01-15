@@ -1,9 +1,9 @@
-import { getAllPosts } from "@/lib/api";
+import { getAllContent } from "@/lib/api";
 
 export async function generateStaticParams() {
-  const allPosts = await getAllPosts(true);
+  const allPosts = await getAllContent(true, 'post');
 
-  return allPosts.map((post) => ({
+  return allPosts.map((post: any) => ({
     slug: post.slug,
   }));
 }

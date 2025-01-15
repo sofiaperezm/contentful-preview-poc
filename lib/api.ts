@@ -1,3 +1,5 @@
+import { ContentType } from '../types'
+
 const POST_GRAPHQL_FIELDS = `
   sys {
     id
@@ -33,24 +35,6 @@ const POST_GRAPHQL_FIELDS = `
   }
 `;
 
-const PRODUCT_GRAPHQL_FIELDS = `
-  sys {
-    id
-  }
-  __typename
-  internalName
-  title
-  slug
-  category
-  description {
-    json
-  }
-  price
-  image {
-    url
-  }
-`;
-
 const RESTAURANT_GRAPHQL_FIELDS = `
   sys {
     id
@@ -68,6 +52,27 @@ const RESTAURANT_GRAPHQL_FIELDS = `
     url
   }
 `;
+
+function getTypeMappings(type: ContentType) {
+  const typeMappings = {
+    post: {
+      collection: "postCollection",
+      fields: POST_GRAPHQL_FIELDS,
+      order: 'date_DESC',
+    },
+    restaurant: {
+      collection: "restaurantCollection",
+      fields: RESTAURANT_GRAPHQL_FIELDS,
+      order: 'name_DESC',
+    }
+  };
+  
+  if (!typeMappings[type]) {
+    throw new Error(`Invalid type: ${type}`);
+  }
+
+  return typeMappings[type];
+}
 
 async function fetchGraphQL(query: string, preview = false): Promise<any> {
   return fetch(
@@ -88,43 +93,12 @@ async function fetchGraphQL(query: string, preview = false): Promise<any> {
   ).then((response) => response.json());
 }
 
-function extractPost(fetchResponse: any): any {
-  return fetchResponse?.data?.postCollection?.items?.[0];
+function extractSingleEntry(fetchResponse: any, collection: any): any {
+  return fetchResponse?.data?.[collection]?.items?.[0];
 }
 
-function extractPostEntries(fetchResponse: any): any[] {
-  return fetchResponse?.data?.postCollection?.items;
-}
-
-export async function getPreviewPostBySlug(slug: string | null): Promise<any> {
-  const entry = await fetchGraphQL(
-    `query {
-      postCollection(where: { slug: "${slug}" }, preview: true, limit: 1) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    true,
-  );
-  return extractPost(entry);
-}
-
-export async function getAllPosts(isDraftMode: boolean): Promise<any[]> {
-  const entries = await fetchGraphQL(
-    `query {
-      postCollection(where: { slug_exists: true }, order: date_DESC, preview: ${
-        isDraftMode ? "true" : "false"
-      }) {
-        items {
-          ${POST_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    isDraftMode,
-  );
-  console.log("entries", entries);
-  return extractPostEntries(entries);
+function extractAllEntries(fetchResponse: any, collection: any): any {
+  return fetchResponse?.data?.[collection]?.items;
 }
 
 export async function getPostAndMorePosts(
@@ -156,72 +130,41 @@ export async function getPostAndMorePosts(
     preview,
   );
   return {
-    post: extractPost(entry),
-    morePosts: extractPostEntries(entries),
+    post: extractSingleEntry(entry, 'postCollection'),
+    morePosts: extractAllEntries(entries, 'postCollection'),
   };
 }
 
-export async function getAllProducts(isDraftMode: boolean): Promise<any[]> {
-  const entries = await fetchGraphQL(
-    `query {
-      productCollection(where: { slug_exists: true }, order: internalName_ASC, preview: ${
-        isDraftMode ? "true" : "false"
-      }) {
-        items {
-          ${PRODUCT_GRAPHQL_FIELDS}
-        }
+export async function getContentBySlug(slug: string, isDraftMode: boolean, type: ContentType): Promise<any> {
+  const { collection, fields } = getTypeMappings(type);
+
+  const query = `
+  query {
+    ${collection}(where: { slug: "${slug}" }, preview: ${isDraftMode ? "true" : "false"}, limit: 1) {
+      items {
+        ${fields}
       }
-    }`,
-    isDraftMode,
-  );
-  return entries?.data?.productCollection?.items;
+    }
+  }
+`;
+
+  const entry = await fetchGraphQL(query, isDraftMode);
+  return extractSingleEntry(entry, collection);
 }
 
-export async function getProductBySlug(slug: string, isDraftMode: boolean): Promise<any> {
-  const entry = await fetchGraphQL(
-    `query {
-      productCollection(where: { slug: "${slug}" }, preview: ${
+export async function getAllContent(isDraftMode: boolean, type: ContentType): Promise<any> {
+  const { collection, fields, order } = getTypeMappings(type);
+
+  const query = `query {
+    ${collection}(where: { slug_exists: true }, order: ${order}, preview: ${
       isDraftMode ? "true" : "false"
-    }, limit: 1) {
-        items {
-          ${PRODUCT_GRAPHQL_FIELDS}
-        }
+    }) {
+      items {
+        ${fields}
       }
-    }`,
-    isDraftMode
-  );
-  return entry?.data?.productCollection?.items?.[0];
-}
+    }
+  }`;
 
-export async function getAllRestaurants(isDraftMode: boolean): Promise<any[]> {
-  const entries = await fetchGraphQL(
-    `query {
-      restaurantCollection(where: { slug_exists: true }, order: entryName_ASC, preview: ${
-        isDraftMode ? "true" : "false"
-      }) {
-        items {
-          ${RESTAURANT_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    isDraftMode,
-  );
-  console.log("entries", entries);
-  return entries?.data?.restaurantCollection?.items;
-}
-
-export async function getRestaurantBySlug(slug: string, isDraftMode: boolean): Promise<any> {
-  const entry = await fetchGraphQL(
-    `query {
-      restaurantCollection(where: { slug: "${slug}" }, preview: ${
-      isDraftMode ? "true" : "false"
-    }, limit: 1) {
-        items {
-          ${RESTAURANT_GRAPHQL_FIELDS}
-        }
-      }
-    }`,
-    isDraftMode
-  );
-  return entry?.data?.restaurantCollection?.items?.[0];
+  const entries = await fetchGraphQL(query, isDraftMode);
+  return extractAllEntries(entries, collection);
 }

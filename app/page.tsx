@@ -6,7 +6,7 @@ import CoverImage from "./cover-image";
 import Avatar from "./avatar";
 import MoreStories from "./more-stories";
 
-import { getAllPosts } from "@/lib/api";
+import { getAllContent } from "@/lib/api";
 import { CMS_NAME, CMS_URL } from "@/lib/constants";
 
 function Intro() {
@@ -78,7 +78,7 @@ function HeroPost({
 
 export default async function Page() {
   const { isEnabled } = draftMode();
-  const allPosts = await getAllPosts(isEnabled);
+  const allPosts = await getAllContent(isEnabled, 'post');
 
   const heroPost = allPosts[0];
   const morePosts = allPosts.slice(1);

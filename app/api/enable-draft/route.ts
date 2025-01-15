@@ -1,4 +1,5 @@
-import { getPreviewPostBySlug, getRestaurantBySlug } from "@/lib/api";
+import { getContentBySlug } from "@/lib/api";
+import { ContentType } from '../../../types'
 import { cookies, draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -6,7 +7,7 @@ export async function GET(request: any) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
   const slug = searchParams.get("slug");
-  const type = searchParams.get("type")
+  const type = searchParams.get("type");
 
   if (!secret || !slug || !type) {
     return new Response("Missing parameters", { status: 400 });
@@ -16,22 +17,9 @@ export async function GET(request: any) {
     return new Response("Invalid token", { status: 401 });
   }
 
-  let content;
-  switch (type) {
-    case "post":
-      content = await getPreviewPostBySlug(slug);
-      if (!content) {
-        return new Response("Post not found", { status: 404 });
-      }
-      break;
-    case "restaurant":
-      content = await getRestaurantBySlug(slug, true);
-      if (!content) {
-        return new Response("Restaurant not found", { status: 404 });
-      }
-      break;
-    default:
-      return new Response("Invalid content type", { status: 400 });
+  const content = await getContentBySlug(slug, true, type as ContentType);
+  if (!content) {
+    return new Response("Content not found", { status: 404 });
   }
 
   draftMode().enable();

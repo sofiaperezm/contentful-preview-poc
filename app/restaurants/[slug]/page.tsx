@@ -1,5 +1,5 @@
 import { draftMode } from "next/headers";
-import { getRestaurantBySlug } from "@/lib/api";
+import { getContentBySlug } from "@/lib/api";
 import RestaurantPage from "./RestaurantPage";
 
 export default async function RestaurantDetailPage({
@@ -8,7 +8,7 @@ export default async function RestaurantDetailPage({
   params: { slug: string };
 }) {
   const { isEnabled } = draftMode();
-  const restaurant = await getRestaurantBySlug(params.slug, isEnabled);
+  const restaurant = await getContentBySlug(params.slug, isEnabled, 'restaurant');
 
   return <RestaurantPage restaurant={restaurant} />;
 }

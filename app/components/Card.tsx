@@ -3,6 +3,7 @@ import ContentfulImageProps from '../../lib/contentful-image';
 import { RestaurantProps } from '../../types';
 
 export default function Card({ restaurant }: { restaurant: RestaurantProps }) {
+  console.log("restaurant", restaurant)
   return (
     <Link href={`/restaurants/${restaurant.slug}`}>
     <div className="p-4 border rounded-lg">

@@ -14,3 +14,5 @@ export interface RestaurantProps {
       phoneNumber: string;
       address: {lat: number, lon: number};
 }
+
+export type ContentType = "post" | "restaurant";
