@@ -13,6 +13,7 @@ export interface RestaurantProps {
       slug: string;
       phoneNumber: string;
       address: {lat: number, lon: number};
+      fullAddress?: string;
 }
 
 export type ContentType = "post" | "restaurant";
