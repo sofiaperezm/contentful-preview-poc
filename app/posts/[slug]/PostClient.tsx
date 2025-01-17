@@ -8,6 +8,7 @@ import Avatar from "../../avatar";
 import Date from "../../date";
 import CoverImage from "../../cover-image";
 import { Markdown } from "@/lib/markdown";
+import { ContentfulLivePreview } from "@contentful/live-preview";
 
 export default function PostClient({ post, morePosts }: { post: any; morePosts: any }) {
   const livePost = useContentfulLiveUpdates(post);
@@ -30,16 +31,30 @@ export default function PostClient({ post, morePosts }: { post: any; morePosts: 
         </h1>
         <div className="hidden md:mb-12 md:block">
           {livePost.author && (
-            <Avatar name={livePost.author.name} picture={livePost.author.picture} />
+            <Avatar
+              name={livePost.author.name}
+              picture={livePost.author.picture}
+            />
           )}
         </div>
         <div className="mb-8 sm:mx-0 md:mb-16">
-          <CoverImage title={livePost.title} url={livePost.coverImage.url} />
+          <CoverImage 
+            title={livePost.title}
+            url={livePost.coverImage.url}
+            assetId={livePost.coverImage.sys.id}
+            {...ContentfulLivePreview.getProps({
+              entryId: livePost.coverImage?.sys.id || '',
+              fieldId: 'coverImage',
+            })}
+          />
         </div>
         <div className="mx-auto max-w-2xl">
           <div className="mb-6 block md:hidden">
-            {post.author && (
-              <Avatar name={livePost.author.name} picture={livePost.author.picture} />
+            {livePost.author && (
+              <Avatar
+                name={livePost.author.name}
+                picture={livePost.author.picture}
+              />
             )}
           </div>
           <div className="mb-6 text-lg">

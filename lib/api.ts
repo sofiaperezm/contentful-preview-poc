@@ -9,13 +9,22 @@ const POST_GRAPHQL_FIELDS = `
   entryName
   title
   coverImage {
+    sys {
+      id
+    }
     url
   }
   date
   author {
+    sys {
+      id
+    }
     name
     picture {
       url
+      sys {
+        id
+      }
     }
   }
   excerpt
